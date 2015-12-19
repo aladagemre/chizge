@@ -20,6 +20,12 @@ module Chizge
             @graph = {} of String => Attr
         end
 
+        # Returns the edges of the given node.
+        # ```
+        # g = Chizge::Graph.new
+        # g.add_path([1,2,3,4,5])
+        # g[3]
+        # ```
         def [](n : Node)
             @adj[n]
         end
@@ -31,15 +37,18 @@ module Chizge
             "#{name} (#{num_nodes} nodes): #{sign}"
         end
 
+        # Returns an iterator over nodes.
         def each
             @node.each
         end
 
-        def contains(n : Node)
+        # Returns if the graph contains a given node.
+        def contains?(n : Node)
             @node.has_key?(n)
         end
 
-        def contains(u : Node, v : Node)
+        # Returns if the graph contains a given edge.
+        def contains?(u : Node, v : Node)
             @edge.has_key?(u) && @edge[u].has_key?(v)
         end
 
@@ -50,7 +59,6 @@ module Chizge
         # g.number_of_nodes
         # #=> 1
         # ```
-
         def add_node(n : Node, attrs = {} of String => Attr)
             unless @node.has_key? n
                 @adj[n] = {} of Node => StringMap
@@ -189,12 +197,15 @@ module Chizge
             @adj[v][u] = datadict
         end
 
+        # Adds the edges in the given array to the graph with given general  atributes for all
         def add_edges_from(ebunch : Array(Tuple(Node, Node)), attrs = {} of String => Attr)
             ebunch.map { |e|
                 u, v = e
                 add_edge(u, v, attrs)
             }
         end
+
+        # Adds the edges in the given array to the graph with given specific and general atributes for all
         def add_edges_from(ebunch : Array(Tuple(Node, Node, typeof({} of String => String | Int64 | Int32 | Float64) )), attrs = {} of String => Attr)
             ebunch.map { |e|
                 u, v, dd = e
@@ -202,6 +213,7 @@ module Chizge
             }
         end
 
+        # Adds the weighted edges in the given array to the graph using field "weight"
         def add_weighted_edges_from(ebunch : Array(Tuple(Node, Node, String | Int64 | Int32 | Float64)), weight="weight")
             ebunch.map { |e|
                 u, v, d = e
@@ -265,7 +277,11 @@ module Chizge
             @edge
         end
 
+        # Returns the attribute hash associated with edge (u,v).
+        # Returns the value of "default" if no such edge is found
         def get_edge_data(u : Node, v : Node, default=nil)
+            val = @adj[u]? && @adj[u][v]?
+            val ? val : default
         end
 
         # Returns an iterator over (node, adjacency hash) tuples for all nodes
