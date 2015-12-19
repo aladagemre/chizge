@@ -5,12 +5,14 @@ module Chizge
     alias StringMap = typeof({} of String => Attr) | Nil
     alias NodeMap = typeof({} of Node => StringMap) | Nil
 
+
     class Graph
         getter directed
         getter node
         getter edge
+        getter name
 
-        def initialize(@directed=false)
+        def initialize(@directed=false, @name="Graph")
             @directed = directed
             # Node attributes
             @node = {} of Node => StringMap
@@ -18,6 +20,29 @@ module Chizge
             @edge = @adj = {} of Node => NodeMap
             # Graph attributes
             @graph = {} of String => Attr
+        end
+
+        def [](n : Node)
+            @adj[n]
+        end
+
+        def to_s
+            name = @name
+            num_nodes = number_of_nodes
+            sign = super.to_s
+            "#{name} (#{num_nodes} nodes): #{sign}"
+        end
+
+        def each
+            @node.each
+        end
+
+        def contains(n : Node)
+            @node.has_key?(n)
+        end
+
+        def contains(u : Node, v : Node)
+            @edge.has_key?(u) && @edge[u].has_key?(v)
         end
 
         def add_node(n : Node, attrs = {} of String => Attr)
