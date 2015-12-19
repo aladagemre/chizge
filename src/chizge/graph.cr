@@ -7,13 +7,11 @@ module Chizge
 
 
     class Graph
-        getter directed
         getter node
         getter edge
         getter name
 
-        def initialize(@directed=false, @name="Graph")
-            @directed = directed
+        def initialize(@name="Graph")
             # Node attributes
             @node = {} of Node => StringMap
             # Adjacency list
@@ -45,6 +43,14 @@ module Chizge
             @edge.has_key?(u) && @edge[u].has_key?(v)
         end
 
+        # Adds a single node n and updates node attributes.
+        # ```
+        # g = Chizge::Graph.new
+        # g.add_node(1)
+        # g.number_of_nodes
+        # #=> 1
+        # ```
+
         def add_node(n : Node, attrs = {} of String => Attr)
             unless @node.has_key? n
                 @adj[n] = {} of Node => StringMap
@@ -59,9 +65,9 @@ module Chizge
         # Adds nodes in the given node array to the graph.
         #
         # ```
-        # G = Chizge::Graph.new
-        # G.add_nodes_from([1, 2, 3, 4, 5])
-        # puts G.node.keys
+        # g = Chizge::Graph.new
+        # g.add_nodes_from([1, 2, 3, 4, 5])
+        # puts g.node.keys
         # #=> [1, 2, 3, 4, 5]
         # ```
         def add_nodes_from(nodes : Array(Node), attrs = {} of String => Attr)
@@ -71,6 +77,7 @@ module Chizge
             end
         end
 
+        # Removes the given node (together with its edges) from the graph.
         def remove_node(n : Node)
             if @node[n]?
                 if @adj[n]?
@@ -82,6 +89,7 @@ module Chizge
             end
         end
 
+        # Removes the given nodes (together with their edges) from the graph.
         def remove_nodes_from(nodes : Array(Node))
             i = -1
             while (i += 1) < nodes.size
@@ -111,20 +119,24 @@ module Chizge
         # Returns the number of nodes in the graph.
         #
         # ```
-        # G = Chizge::Graph.new
-        # G.add_path([0,1,2])
-        # puts G.number_of_nodes
+        # g = Chizge::Graph.new
+        # g.add_path([0,1,2])
+        # puts g.number_of_nodes
         # #=> 3
         # ```
         def number_of_nodes
             @node.size
         end
 
+        # Returns the number of nodes in the graph.
+        # Identical to number_of_nodes
         def order
+            @node.size
         end
 
-        def has_node(n : Node)
-
+        # Returns true if the graph contains the node n.
+        def has_node?(n : Node)
+            @node.has_key?(n)
         end
 
         # =========== EDGES ================
@@ -197,10 +209,30 @@ module Chizge
             }
         end
 
+        # Removes the edge between u and v
+        # Raises EdgeNotFoundException if the given edge is not in the graph.
+        #
+        # ```
+        # g = Chizge::Graph.new
+        # g.add_path([0,1,2,3])
+        # g.remove_edge(0,1)
+        # ```
         def remove_edge(u : Node, v : Node)
+            unless @adj[u][v]?
+                raise Chizge::EdgeNotFoundException.new("Edge (#{u}, #{v}) not found in the graph.")
+            end
+            @adj[u].delete(v)
+            if u != v
+                @adj[v].delete(u)
+            end
         end
 
+        # Removes the given edges from the graph.
         def remove_edges_from(ebunch : Array(Tuple(Node, Node)))
+            i = -1
+            while (i += 1) < ebunch.size
+                remove_edge(ebunch[i][0], ebunch[i][1])
+            end
         end
 
         # Returns if the graph contains the given edge.
@@ -226,14 +258,25 @@ module Chizge
             end
         end
 
-        def edges(nbunch : Array(Tuple(Node, Node)))
-
+        # Returns an iterator over the edges.
+        # Edges are returned as tuples with optional data.
+        def edges(nbunch = [] of Tuple(Node, Node), data=false, default=nil)
+            # TODO: implement this.
+            @edge
         end
 
         def get_edge_data(u : Node, v : Node, default=nil)
         end
 
+        # Returns an iterator over (node, adjacency hash) tuples for all nodes
+        #
+        # ```
+        # g.adjacency.each do |u|
+        #    puts "#{u[0]} : #{u[1]}"
+        # end
+        # ```
         def adjacency
+            @edge.each
         end
 
         # ========== OTHER =======
@@ -243,9 +286,9 @@ module Chizge
         # If weight field is provided, weights are summed on that field.
         #
         # ```
-        # G = Chizge::Graph.new
-        # G.add_path([1,2,3,4,5,6], {"weight" => 2.0})
-        # G.degree { |r| puts r }
+        # g = Chizge::Graph.new
+        # g.add_path([1,2,3,4,5,6], {"weight" => 2.0})
+        # g.degree { |r| puts r }
         # #=>
         #  {1, 1}
         #  {2, 2}
@@ -254,7 +297,7 @@ module Chizge
         #  {5, 2}
         #  {6, 1}
         #
-        # G.degree(nbunch=[1,2]) { |r| puts r }
+        # g.degree(nbunch=[1,2]) { |r| puts r }
         # #=>
         #  {1, 1}
         #  {2, 2}
@@ -288,17 +331,24 @@ module Chizge
             end
         end
 
+        # Removes all nodes and edges from the graph.
+        # Sets the graph name to Graph.
         def clear
+            @name = "Graph"
+            @adj.clear
+            @node.clear
+            @graph.clear
         end
 
         def copy
         end
 
         def is_multigraph?
+            false
         end
 
         def is_directed?
-            @directed
+            false
         end
 
         def to_undirected
@@ -317,11 +367,11 @@ module Chizge
         # If weight field is provided, sum of weights are returned.
         #
         # ```
-        # G = Chizge::Graph.new
-        # G.add_path([1,2,3,4,5,6], {"weight" => 2.0})
-        # puts G.size()
+        # g = Chizge::Graph.new
+        # g.add_path([1,2,3,4,5,6], {"weight" => 2.0})
+        # puts g.size()
         # #=> 10
-        # puts G.size(weight="weight")
+        # puts g.size(weight="weight")
         # #=> 20
         # ```
         def size(weight=nil)
@@ -334,7 +384,19 @@ module Chizge
             total
         end
 
-        def number_of_edges(u : Node, v : Node)
+        # Returns the number of edges between two nodes.
+        # If u, v provided, returns the number of edges between u and v.
+        # Otherwise, returns the total number of all edges.
+        def number_of_edges(u = nil : Node, v = nil : Node)
+            unless u
+                total = 0
+                nodes do |u|
+                    total += @adj[u].size
+                end
+                is_directed? ? total : total/2
+            else
+                u && v && @adj[u][v]? ? 1 : 0
+            end
         end
 
         def add_star(nodes : Array(Node))
@@ -343,10 +405,10 @@ module Chizge
         # Adds a path using given nodes.
         #
         # ```
-        # G = Chizge::Graph.new
-        # G.add_path([0,1,2,3])
-        # G.add_path([10,11,12], {"weight" => 7})
-        # puts G.edge
+        # g = Chizge::Graph.new
+        # g.add_path([0,1,2,3])
+        # g.add_path([10,11,12], {"weight" => 7})
+        # puts g.edge
         # #=> {0 => {1 => {}}, 1 => {0 => {}, 2 => {}}, 2 => {1 => {}, 3 => {}}, 3 => {2 => {}}, 10 => {11 => {"weight" => 7}}, 11 => {10 => {"weight" => 7}, 12 => {"weight" => 7}}, 12 => {11 => {"weight" => 7}}}
         # ```
         def add_path(nodes : Array(Node), attrs = {} of String => Attr)
@@ -359,10 +421,10 @@ module Chizge
         # Adds a cyclic path using given nodes.
         #
         # ```
-        # G = Chizge::Graph.new
-        # G.add_cycle([0,1,2,3])
-        # G.add_cycle([10,11,12], {"weight" => 7})
-        # puts G.edge
+        # g = Chizge::Graph.new
+        # g.add_cycle([0,1,2,3])
+        # g.add_cycle([10,11,12], {"weight" => 7})
+        # puts g.edge
         # #=> {0 => {1 => {}, 3 => {}}, 1 => {0 => {}, 2 => {}}, 2 => {1 => {}, 3 => {}}, 3 => {2 => {}, 0 => {}}, 10 => {11 => {"weight" => 7}, 12 => {"weight" => 7}}, 11 => {10 => {"weight" => 7}, 12 => {"weight" => 7}}, 12 => {11 => {"weight" => 7}, 10 => {"weight" => 7}}}
         # ```
         def add_cycle(nodes : Array(Node), attrs = {} of String => Attr)

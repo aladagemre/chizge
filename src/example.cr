@@ -17,3 +17,11 @@ puts g.to_s
 puts g.contains(1)
 puts g.contains(1, 2)
 puts g[1]
+g.adjacency.each do |u|
+    puts "#{u[0]} : #{u[1]}"
+end
+puts g.number_of_edges
+g.remove_edges_from([{1,2}, {2,3}])
+#g.remove_edge(1,9)
+puts g.number_of_edges
+puts g.number_of_edges(4,5)
