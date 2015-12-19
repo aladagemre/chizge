@@ -85,6 +85,11 @@ module Chizge
             end
         end
 
+        # Returns node data for the given node.
+        def get_node_data(node : Node)
+            @node[node]
+        end
+
         # Removes the given node (together with its edges) from the graph.
         def remove_node(n : Node)
             if @node[n]?
