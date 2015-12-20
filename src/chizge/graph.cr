@@ -7,8 +7,11 @@ module Chizge
 
 
     class Graph
+        # Returns the hash containing nodes and their attributes.
         getter node
+        # Returns the hash containing nodes and their adjacency lists (w/attributes).
         getter edge
+        # Returns the name of graph.
         getter name
 
         def initialize(@name="Graph")
@@ -30,6 +33,8 @@ module Chizge
             @adj[n]
         end
 
+        # Returns the string representation of the graph
+        # Graph (10 nodes): [original hash]
         def to_s
             name = @name
             num_nodes = number_of_nodes
@@ -322,9 +327,8 @@ module Chizge
         # #=>
         #  {1, 1}
         #  {2, 2}
+        # ```
         #
-
-        # ```
         def degree(nbunch=[] of Node, weight=nil)
             # TODO: Not finished yet.
 
@@ -361,23 +365,29 @@ module Chizge
             @graph.clear
         end
 
+        # Returns a copy of the graph object.
         def copy
         end
 
+        # Checks if the graph is a multigraph.
         def is_multigraph?
             false
         end
 
+        # Checks if the graph is directed.
         def is_directed?
             false
         end
 
+        # Converts the graph to undirected.
         def to_undirected
         end
 
+        # Returns the subgraph containing the nodes in *nbunch*.
         def subgraph(nbunch : Array(Node))
         end
 
+        # Returns the array of nodes that has self-loops.
         def nodes_with_selfloops
         end
 
@@ -394,7 +404,8 @@ module Chizge
         # #=> 10
         # puts g.size(weight="weight")
         # #=> 20
-        # ```
+        # ```
+        #
         def size(weight=nil)
             total = weight ? 0.0 : 0
             w = weight
