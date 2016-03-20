@@ -468,7 +468,6 @@ module Chizge
     def nbunch_iter(nbunch = [] of Node)
     end
 
-
     # If it is cycle graph returns true
     # All of the nodes's degree must be 2
     def is_cycle_graph?
@@ -478,11 +477,7 @@ module Chizge
           temp += 1
         end
       end
-      if temp == @node.size
-        true
-      else
-        false
-      end
+      return temp == @node.size
     end
 
     # If it is complete graph returns true
@@ -494,11 +489,7 @@ module Chizge
           temp += 1
         end
       end
-        if temp == @node.size
-          true
-        else
-          false
-        end
+      return temp == @node.size
     end
 
     # If it is path graph returns true
@@ -511,19 +502,14 @@ module Chizge
       @edge.each do |r|
         if count == 0 && @edge[r].size == 1
           first_node_degree = 1
-        elsif count == @node.size-1 && @edge[r].size == 1
+        elsif count == @node.size - 1 && @edge[r].size == 1
           last_node_degree = 1
         elsif @edge[r].size == 2
           temp += 1
         end
         count += 1
       end
-      if first_node_degree == 1 && last_node_degree == 1 && temp == @node.size-2
-        true
-      else
-        false
-      end
+      return first_node_degree == 1 && last_node_degree == 1 && temp == @node.size - 2
     end
-
   end
 end
