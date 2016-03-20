@@ -467,5 +467,63 @@ module Chizge
 
     def nbunch_iter(nbunch = [] of Node)
     end
+
+
+    # If it is cycle graph returns true
+    # All of the nodes's degree must be 2
+    def is_cycle_graph?
+      temp = 0
+      @edge.each do |r|
+        if @edge[r].size == 2
+          temp += 1
+        end
+      end
+      if temp == @node.size
+        true
+      else
+        false
+      end
+    end
+
+    # If it is complete graph returns true
+    # All of the nodes's degree must be total number of nodes minus 1
+    def is_complete_graph?
+      temp = 0
+      @edge.each do |r|
+        if @edge[r].size == @node.size - 1
+          temp += 1
+        end
+      end
+        if temp == @node.size
+          true
+        else
+          false
+        end
+    end
+
+    # If it is path graph returns true
+    # First and last node's degree must be 1, others must be 2
+    def is_path_graph?
+      temp = 0
+      count = 0
+      first_node_degree = 0
+      last_node_degree = 0
+      @edge.each do |r|
+        if count == 0 && @edge[r].size == 1
+          first_node_degree = 1
+        elsif count == @node.size-1 && @edge[r].size == 1
+          last_node_degree = 1
+        elsif @edge[r].size == 2
+          temp += 1
+        end
+        count += 1
+      end
+      if first_node_degree == 1 && last_node_degree == 1 && temp == @node.size-2
+        true
+      else
+        false
+      end
+    end
+
   end
 end
