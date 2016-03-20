@@ -2,8 +2,8 @@ module Chizge
   alias Attr = String | Int64 | Int32 | Float64
   alias Node = String | Int64 | Int32 | Nil
   alias Edge = Tuple(Node, Node)
-  alias StringMap = typeof({} of String => Attr) | Nil
-  alias NodeMap = typeof({} of Node   => StringMap) | Nil
+  alias StringMap = Hash(String, Attr)
+  alias NodeMap = Hash(Node, StringMap) | Nil
 
   class Graph
     # Returns the hash containing nodes and their attributes.
@@ -171,7 +171,7 @@ module Chizge
     # ```
     def create_ine(u)
       unless @node[u]?
-        @adj[u] = {} of Node   => StringMap
+        @adj[u] = {} of Node => StringMap
         @node[u] = {} of String => Attr
       end
     end
@@ -215,7 +215,7 @@ module Chizge
     end
 
     # Adds the edges in the given array to the graph with given specific and general atributes for all
-    def add_edges_from(ebunch : Array(Tuple(Node, Node, typeof({} of String => String | Int64 | Int32 | Float64))), attrs = {} of String => Attr)
+    def add_edges_from(ebunch : Array(Tuple(Node, Node, Hash(String, Attr))), attrs = {} of String => Attr)
       ebunch.map { |e|
         u, v, dd = e
         add_edge(u, v, attrs.merge(dd))
@@ -223,7 +223,7 @@ module Chizge
     end
 
     # Adds the weighted edges in the given array to the graph using field "weight"
-    def add_weighted_edges_from(ebunch : Array(Tuple(Node, Node, String | Int64 | Int32 | Float64)), weight = "weight")
+    def add_weighted_edges_from(ebunch : Array(Tuple(Node, Node, Attr)), weight = "weight")
       ebunch.map { |e|
         u, v, d = e
         add_edge(u, v, {weight => d})
@@ -418,7 +418,7 @@ module Chizge
     # Returns the number of edges between two nodes.
     # If u, v provided, returns the number of edges between u and v.
     # Otherwise, returns the total number of all edges.
-    def number_of_edges(u = nil : Node, v = nil : Node)
+    def number_of_edges(u : Node = nil, v : Node = nil)
       unless u
         total = 0
         nodes do |u|
