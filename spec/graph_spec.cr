@@ -55,4 +55,18 @@ it Chizge::Graph do
     g.add_cycle([4, 5, 6, 7, 1])
     g.size.should eq(16)
   end
+
+  it "#is_path_graph?" do
+    g = Chizge::Graph.new
+    g.add_path([1, 2, 3, 4])
+    g.is_path_graph?.should eq(true)
+    g.is_cycle_graph?.should eq(false)
+  end
+
+  it "#is_cycle_graph?" do
+    g = Chizge::Graph.new
+    g.add_cycle([1, 2, 3, 4])
+    g.is_cycle_graph?.should eq(true)
+    g.is_path_graph?.should eq(false)
+  end
 end
