@@ -459,9 +459,25 @@ module Chizge
     # # => {0 => {1 => {}, 3 => {}}, 1 => {0 => {}, 2 => {}}, 2 => {1 => {}, 3 => {}}, 3 => {2 => {}, 0 => {}}, 10 => {11 => {"weight" => 7}, 12 => {"weight" => 7}}, 11 => {10 => {"weight" => 7}, 12 => {"weight" => 7}}, 12 => {11 => {"weight" => 7}, 10 => {"weight" => 7}}}
     # ```
     def add_cycle(nodes : Array(Node), attrs = {} of String => Attr)
-      bunch1 = nodes[1..nodes.size - 1]
-      bunch2 = nodes[0...1]
-      edges = nodes.zip(bunch1 + bunch2)
+      edges = nodes.zip(nodes.rotate)
+      add_edges_from(edges, attrs)
+    end
+
+    # Adds a complete path using given nodes.
+    #
+    # ```
+    # g = Chizge::Graph.new
+    # g.add_complete([0, 1, 2, 3])
+    # puts g.edge
+    # # => {0 => {1 => {}, 3 => {}, 2 => {}}, 1 => {0 => {}, 2 => {}, 3 => {}}, 2 => {1 => {}, 3 => {}, 0 => {}}, 3 => {2 => {}, 0 => {}, 1 => {}}}
+    def add_complete(nodes : Array(Node), attrs = {} of String => Attr)
+      temp = nodes.size - 3
+      edges = nodes.zip(nodes.rotate)
+      count = 2
+      temp.times do
+        edges += nodes.zip(nodes.rotate(count))
+        count += 1
+      end
       add_edges_from(edges, attrs)
     end
 
