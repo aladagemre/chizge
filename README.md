@@ -2,6 +2,8 @@
 
 [![Join the chat at https://gitter.im/aladagemre/chizge](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/aladagemre/chizge?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Join the chat at https://gitter.im/aladagemre/chizge](https://badges.gitter.im/aladagemre/chizge.svg)](https://gitter.im/aladagemre/chizge?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A Network (Graph) Analysis library for Crystal Language, inspired by NetworkX.
 
 ## Installation
