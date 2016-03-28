@@ -15,11 +15,11 @@ module Chizge
 
     def initialize(@name = "Graph")
       # Node attributes
-      @node = {} of Node => StringMap
+      @node = Hash(Node, StringMap).new
       # Adjacency list
-      @edge = @adj = {} of Node => NodeMap
+      @edge = @adj = Hash(Node, NodeMap).new
       # Graph attributes
-      @graph = {} of String => Attr
+      @graph = Hash(String, Attr).new
     end
 
     # Returns the edges of the given node.
@@ -63,9 +63,9 @@ module Chizge
     # g.number_of_nodes
     # # => 1
     # ```
-    def add_node(n : Node, attrs = {} of String => Attr)
+    def add_node(n : Node, attrs = Hash(String, Attr).new)
       unless @node.has_key? n
-        @adj[n] = {} of Node => StringMap
+        @adj[n] = Hash(Node, StringMap).new
         @node[n] = attrs
       else
         if attrs
@@ -82,7 +82,7 @@ module Chizge
     # puts g.node.keys
     # # => [1, 2, 3, 4, 5]
     # ```
-    def add_nodes_from(nodes : Array(Node), attrs = {} of String => Attr)
+    def add_nodes_from(nodes : Array(Node), attrs = Hash(String, Attr).new)
       i = -1
       while (i += 1) < nodes.size
         add_node(nodes[i])
@@ -171,8 +171,8 @@ module Chizge
     # ```
     def create_ine(u)
       unless @node[u]?
-        @adj[u] = {} of Node => StringMap
-        @node[u] = {} of String => Attr
+        @adj[u] = Hash(Node, StringMap).new
+        @node[u] = Hash(String, Attr).new
       end
     end
 
@@ -190,13 +190,13 @@ module Chizge
     # g.edge
     # # => {1 => {2 => {"weight" => 32.2}}, 2 => {1 => {"weight" => 32.2}}}
     # ```
-    def add_edge(u : Node, v : Node, attrs = {} of String => Attr)
+    def add_edge(u : Node, v : Node, attrs = Hash(String, Attr).new)
       # Create node and its (empty) edges if node doesn't exist
       create_ine(u)
       create_ine(v)
 
       # Get the edge data if it already exists
-      datadict = @adj[u][v]? ? @adj[u][v] : {} of String => Attr
+      datadict = @adj[u][v]? ? @adj[u][v] : Hash(String, Attr).new
 
       # Update the edge data with given attributes
       datadict = datadict.merge(attrs)
@@ -207,7 +207,7 @@ module Chizge
     end
 
     # Adds the edges in the given array to the graph with given general  atributes for all
-    def add_edges_from(ebunch : Array(Tuple(Node, Node)), attrs = {} of String => Attr)
+    def add_edges_from(ebunch : Array(Tuple(Node, Node)), attrs = Hash(String, Attr).new)
       ebunch.map { |e|
         u, v = e
         add_edge(u, v, attrs)
@@ -215,7 +215,7 @@ module Chizge
     end
 
     # Adds the edges in the given array to the graph with given specific and general atributes for all
-    def add_edges_from(ebunch : Array(Tuple(Node, Node, Hash(String, Attr))), attrs = {} of String => Attr)
+    def add_edges_from(ebunch : Array(Tuple(Node, Node, Hash(String, Attr))), attrs = Hash(String, Attr).new)
       ebunch.map { |e|
         u, v, dd = e
         add_edge(u, v, attrs.merge(dd))
@@ -442,7 +442,7 @@ module Chizge
     # puts g.edge
     # # => {0 => {1 => {}}, 1 => {0 => {}, 2 => {}}, 2 => {1 => {}, 3 => {}}, 3 => {2 => {}}, 10 => {11 => {"weight" => 7}}, 11 => {10 => {"weight" => 7}, 12 => {"weight" => 7}}, 12 => {11 => {"weight" => 7}}}
     # ```
-    def add_path(nodes : Array(Node), attrs = {} of String => Attr)
+    def add_path(nodes : Array(Node), attrs = Hash(String, Attr).new)
       bunch1 = nodes[0...nodes.size - 1]
       bunch2 = nodes[1..nodes.size - 1]
       edges = bunch1.zip(bunch2)
@@ -458,7 +458,7 @@ module Chizge
     # puts g.edge
     # # => {0 => {1 => {}, 3 => {}}, 1 => {0 => {}, 2 => {}}, 2 => {1 => {}, 3 => {}}, 3 => {2 => {}, 0 => {}}, 10 => {11 => {"weight" => 7}, 12 => {"weight" => 7}}, 11 => {10 => {"weight" => 7}, 12 => {"weight" => 7}}, 12 => {11 => {"weight" => 7}, 10 => {"weight" => 7}}}
     # ```
-    def add_cycle(nodes : Array(Node), attrs = {} of String => Attr)
+    def add_cycle(nodes : Array(Node), attrs = Hash(String, Attr).new)
       edges = nodes.zip(nodes.rotate)
       add_edges_from(edges, attrs)
     end
@@ -470,7 +470,7 @@ module Chizge
     # g.add_complete([0, 1, 2, 3])
     # puts g.edge
     # # => {0 => {1 => {}, 3 => {}, 2 => {}}, 1 => {0 => {}, 2 => {}, 3 => {}}, 2 => {1 => {}, 3 => {}, 0 => {}}, 3 => {2 => {}, 0 => {}, 1 => {}}}
-    def add_complete(nodes : Array(Node), attrs = {} of String => Attr)
+    def add_complete(nodes : Array(Node), attrs = Hash(String, Attr).new)
       temp = nodes.size - 3
       edges = nodes.zip(nodes.rotate)
       count = 2
