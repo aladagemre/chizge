@@ -1,9 +1,9 @@
 module Chizge
   alias Attr = String | Int64 | Int32 | Float64
-  alias Node = String | Int64 | Int32 | Nil
+  alias Node = String | Int64 | Int32
   alias Edge = Tuple(Node, Node)
   alias StringMap = Hash(String, Attr)
-  alias NodeMap = Hash(Node, StringMap) | Nil
+  alias NodeMap = Hash(Node, StringMap)
 
   class Graph
     # Returns the hash containing nodes and their attributes.
