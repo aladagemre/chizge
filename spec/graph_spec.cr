@@ -69,4 +69,11 @@ describe Chizge::Graph do
     g.is_cycle_graph?.should eq(true)
     g.is_path_graph?.should eq(false)
   end
+
+  it "#is_complete_graph?" do
+    g = Chizge::Graph.new
+    g.add_complete([1, 2, 3, 4])
+    g.is_complete_graph?.should eq(true)
+    g.is_cycle_graph?.should eq(false)
+  end
 end
