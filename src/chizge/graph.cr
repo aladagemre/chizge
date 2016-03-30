@@ -471,14 +471,16 @@ module Chizge
     # puts g.edge
     # # => {0 => {1 => {}, 3 => {}, 2 => {}}, 1 => {0 => {}, 2 => {}, 3 => {}}, 2 => {1 => {}, 3 => {}, 0 => {}}, 3 => {2 => {}, 0 => {}, 1 => {}}}
     def add_complete(nodes : Array(Node), attrs = Hash(String, Attr).new)
-      temp = nodes.size - 3
-      edges = nodes.zip(nodes.rotate)
-      count = 2
-      temp.times do
-        edges += nodes.zip(nodes.rotate(count))
-        count += 1
+      if nodes.size > 1
+        temp = nodes.size - 3
+        edges = nodes.zip(nodes.rotate)
+        count = 2
+        temp.times do
+          edges += nodes.zip(nodes.rotate(count))
+          count += 1
+        end
+        add_edges_from(edges, attrs)
       end
-      add_edges_from(edges, attrs)
     end
 
     def nbunch_iter(nbunch = [] of Node)
@@ -526,6 +528,86 @@ module Chizge
         count += 1
       end
       return first_node_degree == 1 && last_node_degree == 1 && temp == @node.size - 2
+    end
+
+    # If it is path graph returns true
+    # All of the nodes's degree must be equal
+    def is_regular_graph?
+      first_item = true
+      temp = 0
+      @edge.each do |r|
+        if first_item
+          temp = @edge[r].size
+          first_item = false
+        end
+        if @edge[r].size != temp
+          return false
+          break
+        end
+      end
+      return true
+    end
+
+    # Sorts nodes according to degree of nodes in descending order
+    def sort_by_degree
+      n = @node.size
+      sorted_edge = {} of Node => NodeMap
+      n.times do
+        max = -1
+        max_key = 0
+        @edge.each do |r|
+          if @edge[r].size > max
+            max_key = r
+            max = @edge[r].size
+          end
+        end
+        sorted_edge[max_key] = @edge[max_key]
+        @edge.delete(max_key)
+      end
+      @edge = sorted_edge.clone
+    end
+
+    # Coloring the graph using with Welsh & Powell Algorithm:
+    # 1. Sort nodes according to the degree of nodes in descending order
+    # 2. Give the first color to top node and other nodes which is not connected to this node
+    # 3. Choose the next node in the list which is not colored and give the second color to this node
+    # 4. Keep repeat the third step until all nodes colored
+    def coloring_graph
+      colors = ["color 1", "color 2", "color 3", "color 4", "color 5", "color 6",
+        "color 7", "color 8", "color 9", "color 10", "color 11", "color 12",
+        "color 13", "color 14", "color 15", "color 16", "color 17", "color 18"]
+
+      sort_by_degree()
+
+      colored_nodes = {} of String => String
+      keys = @edge.keys
+      keys_size = keys.size
+
+      i = 0
+      while colored_nodes.size < keys_size
+        unless colored_nodes.has_key?([keys[i]])
+          colored_nodes[keys[i].to_s] = colors[i]
+          j = i + 1
+          while j < keys.size
+            unless @edge[keys[i]].has_key?(keys[j])
+              color_hash = colored_nodes.select { |k, v| v == colors[i] }
+              temp = 0
+              color_hash.each do |r|
+                unless @edge[r].has_key?(keys[j])
+                  temp += 1
+                end
+              end
+              if temp == color_hash.size
+                colored_nodes[keys[j].to_s] = colors[i]
+                keys.delete_at(j)
+              end
+            end
+            j += 1
+          end
+        end
+        i += 1
+      end
+      return colored_nodes
     end
   end
 end
