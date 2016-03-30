@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-it Chizge::Graph do
+describe Chizge::Graph do
   it "works" do
     g = Chizge::Graph.new
     g.name.should eq("Graph")
