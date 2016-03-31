@@ -1,4 +1,4 @@
-require "./chizge/*"
+require "./chizge/**"
 
 g = Chizge::Graph.new
 g.add_path([1, 2, 3, 4, 5])
