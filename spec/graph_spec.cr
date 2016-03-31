@@ -85,26 +85,4 @@ describe Chizge::Graph do
     g.add_path([1, 2, 3, 4])
     g.is_regular_graph?.should eq(false)
   end
-
-  it "colorize_graph" do
-    g = Chizge::Graph.new
-
-    # How many sessions do we need for exams?
-    # Which lectures can not be in the same sessions?
-    student_list_with_lecture = [
-              ["Lecture 1", "Lecture 2", "Lecture 5"],
-              ["Lecture 1", "Lecture 3", "Lecture 5"],
-              ["Lecture 3", "Lecture 4", "Lecture 6"],
-              ["Lecture 4", "Lecture 5", "Lecture 6"]
-    ]
-
-    student_list_with_lecture.each do |r|
-      g.add_complete(r)
-    end
-
-    g.colorize_graph.should eq({"Lecture 5" => "color 1", "Lecture 3" => "color 2",
-                                "Lecture 2" => "color 2", "Lecture 1" => "color 3",
-                                "Lecture 4" => "color 3", "Lecture 6" => "color 4"})
-  end
-
 end
