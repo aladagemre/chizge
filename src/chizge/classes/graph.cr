@@ -4,20 +4,28 @@ module Chizge
   alias Edge = Tuple(Node, Node)
   alias StringMap = Hash(String, Attr)
   alias NodeMap = Hash(Node, StringMap)
+  alias NodeArray = Array(Node) | Node | Nil
+
+  alias N = Node
+  alias E = Edge
 
   class Graph
     # Returns the hash containing nodes and their attributes.
     getter node
     # Returns the hash containing nodes and their adjacency lists (w/attributes).
     getter edge
+    getter adj
     # Returns the name of graph.
     getter name
+    # Returns the graph attributes
+    getter graph
+    setter graph
 
     def initialize(@name = "Graph")
-      # Node attributes
-      @node = Hash(Node, StringMap).new
+      # N attributes
+      @node = Hash(N, StringMap).new
       # Adjacency list
-      @edge = @adj = Hash(Node, NodeMap).new
+      @edge = @adj = Hash(N, NodeMap).new
       # Graph attributes
       @graph = Hash(String, Attr).new
     end
@@ -28,7 +36,7 @@ module Chizge
     # g.add_path([1, 2, 3, 4, 5])
     # g[3]
     # ```
-    def [](n : Node)
+    def [](n : N)
       @adj[n]
     end
 
@@ -47,12 +55,12 @@ module Chizge
     end
 
     # Returns if the graph contains a given node.
-    def contains?(n : Node)
+    def contains?(n : N)
       @node.has_key?(n)
     end
 
     # Returns if the graph contains a given edge.
-    def contains?(u : Node, v : Node)
+    def contains?(u : N, v : N)
       @edge.has_key?(u) && @edge[u].has_key?(v)
     end
 
@@ -63,9 +71,9 @@ module Chizge
     # g.number_of_nodes
     # # => 1
     # ```
-    def add_node(n : Node, attrs = Hash(String, Attr).new)
+    def add_node(n : N, attrs = Hash(String, Attr).new)
       unless @node.has_key? n
-        @adj[n] = Hash(Node, StringMap).new
+        @adj[n] = Hash(N, StringMap).new
         @node[n] = attrs
       else
         if attrs
@@ -82,7 +90,7 @@ module Chizge
     # puts g.node.keys
     # # => [1, 2, 3, 4, 5]
     # ```
-    def add_nodes_from(nodes : Array(Node), attrs = Hash(String, Attr).new)
+    def add_nodes_from(nodes : Array(N), attrs = Hash(String, Attr).new)
       i = -1
       while (i += 1) < nodes.size
         add_node(nodes[i])
@@ -90,12 +98,12 @@ module Chizge
     end
 
     # Returns node data for the given node.
-    def get_node_data(node : Node)
+    def get_node_data(node : N)
       @node[node]
     end
 
     # Removes the given node (together with its edges) from the graph.
-    def remove_node(n : Node)
+    def remove_node(n : N)
       if @node[n]?
         if @adj[n]?
           nbrs = @adj[n].keys
@@ -107,7 +115,7 @@ module Chizge
     end
 
     # Removes the given nodes (together with their edges) from the graph.
-    def remove_nodes_from(nodes : Array(Node))
+    def remove_nodes_from(nodes : Array(N))
       i = -1
       while (i += 1) < nodes.size
         remove_node(nodes[i])
@@ -152,7 +160,7 @@ module Chizge
     end
 
     # Returns true if the graph contains the node n.
-    def has_node?(n : Node)
+    def has_node?(n : N)
       @node.has_key?(n)
     end
 
@@ -171,7 +179,7 @@ module Chizge
     # ```
     def create_ine(u)
       unless @node[u]?
-        @adj[u] = Hash(Node, StringMap).new
+        @adj[u] = Hash(N, StringMap).new
         @node[u] = Hash(String, Attr).new
       end
     end
@@ -190,7 +198,7 @@ module Chizge
     # g.edge
     # # => {1 => {2 => {"weight" => 32.2}}, 2 => {1 => {"weight" => 32.2}}}
     # ```
-    def add_edge(u : Node, v : Node, attrs = Hash(String, Attr).new)
+    def add_edge(u : N, v : N, attrs = Hash(String, Attr).new)
       # Create node and its (empty) edges if node doesn't exist
       create_ine(u)
       create_ine(v)
@@ -207,7 +215,7 @@ module Chizge
     end
 
     # Adds the edges in the given array to the graph with given general  atributes for all
-    def add_edges_from(ebunch : Array(Tuple(Node, Node)), attrs = Hash(String, Attr).new)
+    def add_edges_from(ebunch : Array(Tuple(N, N)), attrs = Hash(String, Attr).new)
       ebunch.map { |e|
         u, v = e
         add_edge(u, v, attrs)
@@ -215,7 +223,7 @@ module Chizge
     end
 
     # Adds the edges in the given array to the graph with given specific and general atributes for all
-    def add_edges_from(ebunch : Array(Tuple(Node, Node, Hash(String, Attr))), attrs = Hash(String, Attr).new)
+    def add_edges_from(ebunch : Array(Tuple(N, N, Hash(String, Attr))), attrs = Hash(String, Attr).new)
       ebunch.map { |e|
         u, v, dd = e
         add_edge(u, v, attrs.merge(dd))
@@ -223,7 +231,7 @@ module Chizge
     end
 
     # Adds the weighted edges in the given array to the graph using field "weight"
-    def add_weighted_edges_from(ebunch : Array(Tuple(Node, Node, Attr)), weight = "weight")
+    def add_weighted_edges_from(ebunch : Array(Tuple(N, N, Attr)), weight = "weight")
       ebunch.map { |e|
         u, v, d = e
         add_edge(u, v, {weight => d})
@@ -238,9 +246,9 @@ module Chizge
     # g.add_path([0, 1, 2, 3])
     # g.remove_edge(0, 1)
     # ```
-    def remove_edge(u : Node, v : Node)
+    def remove_edge(u : N, v : N)
       unless @adj[u][v]?
-        raise Chizge::EdgeNotFoundException.new("Edge (#{u}, #{v}) not found in the graph.")
+        raise Chizge::Exceptions::EdgeNotFoundException.new("Edge (#{u}, #{v}) not found in the graph.")
       end
       @adj[u].delete(v)
       if u != v
@@ -249,7 +257,7 @@ module Chizge
     end
 
     # Removes the given edges from the graph.
-    def remove_edges_from(ebunch : Array(Tuple(Node, Node)))
+    def remove_edges_from(ebunch : Array(Tuple(N, N)))
       i = -1
       while (i += 1) < ebunch.size
         remove_edge(ebunch[i][0], ebunch[i][1])
@@ -257,21 +265,21 @@ module Chizge
     end
 
     # Returns if the graph contains the given edge.
-    def has_edge?(u : Node, v : Node)
+    def has_edge?(u : N, v : N)
       @edge.has_key?(u) && @edge[u].has_key?(v)
     end
 
     # Returns an array containing all neighbors of node n.
-    def neighbors(n : Node)
+    def neighbors(n : N)
       if @edge.has_key?(n)
         @edge[n].keys
       else
-        [] of Node
+        [] of N
       end
     end
 
     # Returns an iterator over all neighbors of node n
-    def neighbors_iter(n : Node)
+    def neighbors_iter(n : N)
       if @edge.has_key?(n)
         @edge[n].keys.each do |neighbor|
           yield neighbor
@@ -281,14 +289,14 @@ module Chizge
 
     # Returns an iterator over the edges.
     # Edges are returned as tuples with optional data.
-    def edges(nbunch = [] of Tuple(Node, Node), data = false, default = nil)
+    def edges(nbunch = [] of Tuple(N, N), data = false, default = nil)
       # TODO: implement this.
       @edge
     end
 
     # Returns the attribute hash associated with edge (u,v).
     # Returns the value of "default" if no such edge is found
-    def get_edge_data(u : Node, v : Node, default = nil)
+    def get_edge_data(u : N, v : N, default = nil)
       val = @adj[u]? && @adj[u][v]?
       val ? val : default
     end
@@ -328,7 +336,7 @@ module Chizge
     # {2, 2}
     # ```
     #
-    def degree(nbunch = [] of Node, weight = nil)
+    def degree(nbunch = [] of N, weight = nil)
       # TODO: Not finished yet.
 
       if nbunch.size == 0
@@ -380,10 +388,35 @@ module Chizge
 
     # Converts the graph to undirected.
     def to_undirected
+      self.clone
     end
 
     # Returns the subgraph containing the nodes in *nbunch*.
-    def subgraph(nbunch : Array(Node))
+    # TODO: Not tested well.
+    def subgraph(nbunch : Array(N))
+        bunch = self.nbunch_iter(nbunch)
+        h = typeof(self).new
+        h_adj = h.edge()
+        self_adj = @adj
+        node = @node
+
+        bunch.each {|n| h.node[n] = node[n]}
+        h.node.each do |n|
+            hnbrs = NodeMap.new
+            h_adj[n] = hnbrs
+            self_adj[n].map do |nbr, d|
+                if h_adj.has_key?(nbr)
+                    hnbrs[nbr] = d
+                    h_adj[nbr][n] = d
+                end
+            end
+        end
+        h.graph = @graph
+        return h
+    end
+
+    # Returns the subgraph induced by the specified edges.
+    def edge_subgraph(edges : Array(Edge))
     end
 
     # Returns the array of nodes that has self-loops.
@@ -408,7 +441,7 @@ module Chizge
     def size(weight = nil)
       total = weight ? 0.0 : 0
       w = weight
-      f = degree([] of Node, w) do |r|
+      f = degree([] of N, w) do |r|
         dg = r[1].to_f64
         total += dg
       end
@@ -418,7 +451,7 @@ module Chizge
     # Returns the number of edges between two nodes.
     # If u, v provided, returns the number of edges between u and v.
     # Otherwise, returns the total number of all edges.
-    def number_of_edges(u : Node = nil, v : Node = nil)
+    def number_of_edges(u : N = nil, v : N = nil)
       unless u
         total = 0
         nodes do |u|
@@ -430,7 +463,7 @@ module Chizge
       end
     end
 
-    def add_star(nodes : Array(Node))
+    def add_star(nodes : Array(N))
     end
 
     # Adds a path using given nodes.
@@ -442,7 +475,7 @@ module Chizge
     # puts g.edge
     # # => {0 => {1 => {}}, 1 => {0 => {}, 2 => {}}, 2 => {1 => {}, 3 => {}}, 3 => {2 => {}}, 10 => {11 => {"weight" => 7}}, 11 => {10 => {"weight" => 7}, 12 => {"weight" => 7}}, 12 => {11 => {"weight" => 7}}}
     # ```
-    def add_path(nodes : Array(Node), attrs = Hash(String, Attr).new)
+    def add_path(nodes : Array(N), attrs = Hash(String, Attr).new)
       bunch1 = nodes[0...nodes.size - 1]
       bunch2 = nodes[1..nodes.size - 1]
       edges = bunch1.zip(bunch2)
@@ -458,7 +491,7 @@ module Chizge
     # puts g.edge
     # # => {0 => {1 => {}, 3 => {}}, 1 => {0 => {}, 2 => {}}, 2 => {1 => {}, 3 => {}}, 3 => {2 => {}, 0 => {}}, 10 => {11 => {"weight" => 7}, 12 => {"weight" => 7}}, 11 => {10 => {"weight" => 7}, 12 => {"weight" => 7}}, 12 => {11 => {"weight" => 7}, 10 => {"weight" => 7}}}
     # ```
-    def add_cycle(nodes : Array(Node), attrs = Hash(String, Attr).new)
+    def add_cycle(nodes : Array(N), attrs = Hash(String, Attr).new)
       edges = nodes.zip(nodes.rotate)
       add_edges_from(edges, attrs)
     end
@@ -470,7 +503,8 @@ module Chizge
     # g.add_complete([0, 1, 2, 3])
     # puts g.edge
     # # => {0 => {1 => {}, 3 => {}, 2 => {}}, 1 => {0 => {}, 2 => {}, 3 => {}}, 2 => {1 => {}, 3 => {}, 0 => {}}, 3 => {2 => {}, 0 => {}, 1 => {}}}
-    def add_complete(nodes : Array(Node), attrs = Hash(String, Attr).new)
+    # ```
+    def add_complete(nodes : Array(N), attrs = Hash(String, Attr).new)
       if nodes.size > 1
         temp = nodes.size - 3
         edges = nodes.zip(nodes.rotate)
@@ -483,8 +517,33 @@ module Chizge
       end
     end
 
-    def nbunch_iter(nbunch = [] of Node)
+    # Returns an iterator over nodes
+    #
+    # TODO: add more examples for all cases
+    #
+    # ```
+    # nodes = g.nbunch_iter()
+    #  nodes.map { ... }
+    # ```
+    def nbunch_iter(nbunch : NodeArray = nil)
+      # if nil, include all nodes via iterator
+      if nbunch.is_a?(Nil)
+        return @node.keys.each
+        # if nbunch is a single node
+      elsif nbunch.is_a?(N) && @node.has_key?(nbunch)
+        return [nbunch].each
+        # if nbunch is a sequence of nodes
+      elsif nbunch.is_a?(Array(N))
+        # TODO: not exactly the same as networkx.
+        adj = @adj
+        return nbunch.select { |node| adj.has_key?(node) }.each
+      else
+        raise Chizge::Exceptions::NodeNotFoundException.new(nbunch)
+      end
     end
+
+
+
 
     # If it is cycle graph returns true
     # All of the nodes's degree must be 2
@@ -546,68 +605,6 @@ module Chizge
         end
       end
       return true
-    end
-
-    # Sorts nodes according to degree of nodes in descending order
-    def sort_by_degree
-      n = @node.size
-      sorted_edge = {} of Node => NodeMap
-      n.times do
-        max = -1
-        max_key = 0
-        @edge.each do |r|
-          if @edge[r].size > max
-            max_key = r
-            max = @edge[r].size
-          end
-        end
-        sorted_edge[max_key] = @edge[max_key]
-        @edge.delete(max_key)
-      end
-      @edge = sorted_edge.clone
-    end
-
-    # Coloring the graph using with Welsh & Powell Algorithm:
-    # 1. Sort nodes according to the degree of nodes in descending order
-    # 2. Give the first color to top node and other nodes which is not connected to this node
-    # 3. Choose the next node in the list which is not colored and give the second color to this node
-    # 4. Keep repeat the third step until all nodes colored
-    def colorize_graph
-      colors = ["color 1", "color 2", "color 3", "color 4", "color 5", "color 6",
-        "color 7", "color 8", "color 9", "color 10", "color 11", "color 12",
-        "color 13", "color 14", "color 15", "color 16", "color 17", "color 18"]
-
-      sort_by_degree()
-
-      colored_nodes = {} of String => String
-      keys = @edge.keys
-      keys_size = keys.size
-
-      i = 0
-      while colored_nodes.size < keys_size
-        unless colored_nodes.has_key?([keys[i]])
-          colored_nodes[keys[i].to_s] = colors[i]
-          j = i + 1
-          while j < keys.size
-            unless @edge[keys[i]].has_key?(keys[j])
-              color_hash = colored_nodes.select { |k, v| v == colors[i] }
-              temp = 0
-              color_hash.each do |r|
-                unless @edge[r].has_key?(keys[j])
-                  temp += 1
-                end
-              end
-              if temp == color_hash.size
-                colored_nodes[keys[j].to_s] = colors[i]
-                keys.delete_at(j)
-              end
-            end
-            j += 1
-          end
-        end
-        i += 1
-      end
-      return colored_nodes
     end
   end
 end

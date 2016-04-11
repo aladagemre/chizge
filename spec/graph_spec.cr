@@ -1,26 +1,30 @@
 require "./spec_helper"
+include Chizge
+include Chizge::Exceptions
 
-describe Chizge::Graph do
+alias G = Graph
+
+describe G do
   it "works" do
-    g = Chizge::Graph.new
+    g = G.new
     g.name.should eq("Graph")
   end
 
   it "#[]" do
-    g = Chizge::Graph.new
+    g = G.new
     g.add_cycle([1, 2, 3, 4])
     g[2].keys.should eq [1, 3]
     g[4].keys.should eq [3, 1]
   end
 
   it "#to_s" do
-    g = Chizge::Graph.new
+    g = G.new
     g.add_cycle([1, 2, 3, 4])
     g.to_s.should contain "Graph (4 nodes): "
   end
 
   it "#contains?" do
-    g = Chizge::Graph.new
+    g = G.new
     g.add_cycle([1, 2, 3, 4])
 
     # Node
@@ -35,7 +39,7 @@ describe Chizge::Graph do
   end
 
   it "#add_node" do
-    g = Chizge::Graph.new
+    g = G.new
     g.add_node(0)
     g.add_cycle([1, 2, 3, 4])
     g.number_of_nodes.should eq 5
@@ -49,7 +53,7 @@ describe Chizge::Graph do
   end
 
   it "#size" do
-    g = Chizge::Graph.new
+    g = G.new
     g.size.should eq(0)
     g.add_path([1, 2, 3, 4])
     g.add_cycle([4, 5, 6, 7, 1])
@@ -57,28 +61,28 @@ describe Chizge::Graph do
   end
 
   it "#is_path_graph?" do
-    g = Chizge::Graph.new
+    g = G.new
     g.add_path([1, 2, 3, 4])
     g.is_path_graph?.should eq(true)
     g.is_cycle_graph?.should eq(false)
   end
 
   it "#is_cycle_graph?" do
-    g = Chizge::Graph.new
+    g = G.new
     g.add_cycle([1, 2, 3, 4])
     g.is_cycle_graph?.should eq(true)
     g.is_path_graph?.should eq(false)
   end
 
   it "#is_complete_graph?" do
-    g = Chizge::Graph.new
+    g = G.new
     g.add_complete([1, 2, 3, 4])
     g.is_complete_graph?.should eq(true)
     g.is_cycle_graph?.should eq(false)
   end
 
   it "#is_regular_graph?" do
-    g = Chizge::Graph.new
+    g = G.new
     g.add_cycle([1, 2, 3, 4])
     g.is_regular_graph?.should eq(true)
     g.clear
@@ -86,25 +90,23 @@ describe Chizge::Graph do
     g.is_regular_graph?.should eq(false)
   end
 
-  it "colorize_graph" do
-    g = Chizge::Graph.new
-
-    # How many sessions do we need for exams?
-    # Which lectures can not be in the same sessions?
-    student_list_with_lecture = [
-              ["Lecture 1", "Lecture 2", "Lecture 5"],
-              ["Lecture 1", "Lecture 3", "Lecture 5"],
-              ["Lecture 3", "Lecture 4", "Lecture 6"],
-              ["Lecture 4", "Lecture 5", "Lecture 6"]
-    ]
-
-    student_list_with_lecture.each do |r|
-      g.add_complete(r)
-    end
-
-    g.colorize_graph.should eq({"Lecture 5" => "color 1", "Lecture 3" => "color 2",
-                                "Lecture 2" => "color 2", "Lecture 1" => "color 3",
-                                "Lecture 4" => "color 3", "Lecture 6" => "color 4"})
+  it "#nbunch_iter" do
+    # TODO: not exactly the same as networkx.
+    g = G.new
+    g.add_edges_from([{0, 1}, {0, 2}, {1, 2}])
+    g.nbunch_iter.to_a.should eq g.node.keys
+    g.nbunch_iter(0).to_a.should eq [0]
+    g.nbunch_iter([0 as N, 1 as N]).to_a.should eq [0, 1]
+    g.nbunch_iter([-1 as N]).to_a.should eq [] of NodeArray
+    expect_raises(NodeNotFoundException) { g.nbunch_iter("foo") }
+    expect_raises(NodeNotFoundException) { g.nbunch_iter(-1) }
   end
 
+  it "#subgraph" do
+      # TODO: Add more tests.
+      g = G.new
+      g.add_edges_from([{0, 1}, {0, 2}, {1, 2}, {3, 4}, {4, 5}, {7, 9}, {7,8}])
+      h = g.subgraph([0 as N, 1 as N, 7 as N, 8 as N])
+      h.edges().size.should eq 4
+  end
 end

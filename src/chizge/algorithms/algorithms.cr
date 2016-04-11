@@ -1,0 +1,2 @@
+module Chizge::Algorithms
+end
