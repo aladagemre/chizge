@@ -101,4 +101,12 @@ describe G do
     expect_raises(NodeNotFoundException) { g.nbunch_iter("foo") }
     expect_raises(NodeNotFoundException) { g.nbunch_iter(-1) }
   end
+
+  it "#subgraph" do
+      # TODO: Add more tests.
+      g = G.new
+      g.add_edges_from([{0, 1}, {0, 2}, {1, 2}, {3, 4}, {4, 5}, {7, 9}, {7,8}])
+      h = g.subgraph([0 as N, 1 as N, 7 as N, 8 as N])
+      h.edges().size.should eq 4
+  end
 end

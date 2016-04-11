@@ -26,3 +26,5 @@ g.remove_edges_from([{1, 2}, {2, 3}])
 # g.remove_edge(1,9)
 puts g.number_of_edges
 puts g.number_of_edges(4, 5)
+
+g.subgraph([0 as N, 1 as N])

@@ -14,8 +14,12 @@ module Chizge
     getter node
     # Returns the hash containing nodes and their adjacency lists (w/attributes).
     getter edge
+    getter adj
     # Returns the name of graph.
     getter name
+    # Returns the graph attributes
+    getter graph
+    setter graph
 
     def initialize(@name = "Graph")
       # N attributes
@@ -388,7 +392,27 @@ module Chizge
     end
 
     # Returns the subgraph containing the nodes in *nbunch*.
+    # TODO: Not tested well.
     def subgraph(nbunch : Array(N))
+        bunch = self.nbunch_iter(nbunch)
+        h = typeof(self).new
+        h_adj = h.edge()
+        self_adj = @adj
+        node = @node
+
+        bunch.each {|n| h.node[n] = node[n]}
+        h.node.each do |n|
+            hnbrs = NodeMap.new
+            h_adj[n] = hnbrs
+            self_adj[n].map do |nbr, d|
+                if h_adj.has_key?(nbr)
+                    hnbrs[nbr] = d
+                    h_adj[nbr][n] = d
+                end
+            end
+        end
+        h.graph = @graph
+        return h
     end
 
     # Returns the subgraph induced by the specified edges.
@@ -517,6 +541,9 @@ module Chizge
         raise Chizge::Exceptions::NodeNotFoundException.new(nbunch)
       end
     end
+
+
+
 
     # If it is cycle graph returns true
     # All of the nodes's degree must be 2
