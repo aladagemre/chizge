@@ -24,9 +24,9 @@ module Chizge::Algorithms::Coloring
   # 3. Choose the next node in the list which is not colored and give the second color to this node
   # 4. Keep repeat the third step until all nodes colored
   def self.welsh_powell(g : Chizge::Graph)
-    colors = ["color 1", "color 2", "color 3", "color 4", "color 5", "color 6",
-      "color 7", "color 8", "color 9", "color 10", "color 11", "color 12",
-      "color 13", "color 14", "color 15", "color 16", "color 17", "color 18"]
+    colors = ["#1abc9c", "#f1c40f", "#2ecc71", "#e67e22", "#3498db", "#e74c3c",
+              "#9b59b6", "#34495e", "#95a5a6", "#16a085", "#f39c12", "#27ae60",
+              "#d35400", "#2980b9", "#c0392b", "#8e44ad", "#bdc3c7", "#7f8c8d"]
 
     edges = sorted_edges(g)
 
