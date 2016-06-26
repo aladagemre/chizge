@@ -606,5 +606,31 @@ module Chizge
       end
       return true
     end
+
+    # TODO: compares graphs. It's not done yet.
+    # def graphs_equal(h : Graph)
+    #     return false if @adj != h.adj
+    #     return false if @edge != h.edge
+    #     return false if @node != h.node
+    #     return false if @graph != h.graph
+    #     return false if @name != h.name
+    #     if ! self.is_directed? && ! h.is_directed?
+    #         return false if h.adj[1][2] != h.adj[2][1]
+    #         return false if @adj[1][2] != @adj[2][1]
+    #     else
+    #         if ! self.is_directed?
+    #             @pred = @adj
+    #             @succ = @adj
+    #         end
+    #         if ! h.is_directed?
+    #             h.pred = h.adj
+    #             h.succ = h.adj
+    #         end
+    #         return false if @pred != h.pred
+    #         return false if @succ != h.succ
+    #         return false if h.succ[1][2] != h.pred[2][1]
+    #         return false if @succ[1][2] != @pred[2][1]
+    #     end
+    # end
   end
 end

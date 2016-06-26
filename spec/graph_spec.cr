@@ -108,5 +108,24 @@ describe G do
       g.add_edges_from([{0, 1}, {0, 2}, {1, 2}, {3, 4}, {4, 5}, {7, 9}, {7,8}])
       h = g.subgraph([0 as N, 1 as N, 7 as N, 8 as N])
       h.edges().size.should eq 4
+      #expected = G.new
+      #expected.add_edges_from([{0, 1}, {1, 0}, {7, 8}, {8, 7}])
+      #h.graphs_equal(expected).should eq true
+      #out = {0 => {1 => {}}, 1 => {0 => {}}, 7 => {8 => {}}, 8 => {7 => {}}}
   end
+
+
+    # def test_subgraph(self):
+    #     G=self.K3
+    #     self.add_attributes(G)
+    #     H=G.subgraph([0,1,2,5])
+    #     H.name=G.name
+    #     self.graphs_equal(H,G)
+    #     self.same_attrdict(H,G)
+    #     self.shallow_copy_attrdict(H,G)
+    #     H=G.subgraph(0)
+    #     assert_equal(H.adj,{0:{}})
+    #     H=G.subgraph([])
+    #     assert_equal(H.adj,{})
+    #     assert_not_equal(G.adj,{})
 end
